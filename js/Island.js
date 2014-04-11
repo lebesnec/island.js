@@ -1,6 +1,6 @@
 var NB_SITES = 15000;
 var SITES_GRID = 'hexagon'; // random, square or hexagon
-var SITES_RANDOMISATION = 50; // %
+var SITES_RANDOMISATION = 80; // %
 var CLIFF_THRESHOLD = 0.15;
 var LAKE_THRESHOLD = 0.005;
 var NB_RIVER = (NB_SITES / 200);
@@ -35,7 +35,7 @@ var displayColors = {
     SUBTROPICAL_DESERT: new paper.Color('#e9ddc7')
 };
 
-var Map = {
+var Island = {
     debug: false,
     voronoi: new Voronoi(),
     diagram: null,
@@ -84,8 +84,8 @@ var Map = {
                 dy = this.bbox.yb - ymargin * 2;
             for (var i = 0; i < n; i++) {
                 sites.push({
-                    x: self.Math.round((xo + self.Math.random() * dx) * 10) / 10,
-                    y: self.Math.round((yo + self.Math.random() * dy) * 10) / 10
+                    x: Math.round((xo + Math.random() * dx) * 10) / 10,
+                    y: Math.round((yo + Math.random() * dy) * 10) / 10
                 });
             }
         } else if (SITES_GRID == 'square' || SITES_GRID == 'hexagon') {
@@ -95,8 +95,8 @@ var Map = {
             var y = 0;
             for (var i = 0; i < n; i++) {
                 sites.push({
-                    x: self.Math.round(x * delta + (self.Math.random() * rand)),
-                    y: self.Math.round(y * delta + (self.Math.random() * rand))
+                    x: Math.max(Math.min(Math.round(x * delta + (Math.random() * rand)), this.bbox.xr), 0),
+                    y: Math.max(Math.min(Math.round(y * delta + (Math.random() * rand)), this.bbox.yb), 0)
                 });
                 x = x + 1;
                 if (x * delta > this.bbox.xr) {

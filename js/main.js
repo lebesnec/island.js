@@ -3,19 +3,26 @@ paper.install(window);
 window.onload = function(e) {
     paper.setup('voronoiCanvas');
     
-    document.getElementById('voronoiCanvas').click(function() {
-        Map.showDebug();
-        document.getElementById('perlin').toggle();
-    });
+    var voronoiCanvas = document.getElementById('voronoiCanvas');
+    var perlinCanvas = document.getElementById('perlin');
+    
+    voronoiCanvas.onclick = function() {
+        Island.showDebug();
+        if (perlinCanvas.style.display == 'block') {
+            perlinCanvas.style.display = 'none';
+        } else {
+            perlinCanvas.style.display = 'block';
+        }
+    };
     
     view.onResize = function(event) {
         //TODO
-        //Map.bbox = {xl: 0, xr: view.viewSize.width, yt: 0, yb: view.viewSize.height};
-        //Map.init();
+        //Island.bbox = {xl: 0, xr: view.viewSize.width, yt: 0, yb: view.viewSize.height};
+        //Island.init();
     };
     view.onFrame = function(event) {
     };
     
-    Map.bbox = {xl: 0, xr: view.viewSize.width, yt: 0, yb: view.viewSize.height};
-    Map.init();
+    Island.bbox = {xl: 0, xr: view.viewSize.width, yt: 0, yb: view.viewSize.height};
+    Island.init();
 };
