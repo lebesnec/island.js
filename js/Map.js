@@ -1,6 +1,6 @@
 var NB_SITES = 15000;
 var SITES_GRID = 'hexagon'; // random, square or hexagon
-var SITES_RANDOMISATION = 50; //%
+var SITES_RANDOMISATION = 50; // %
 var CLIFF_THRESHOLD = 0.15;
 var LAKE_THRESHOLD = 0.005;
 var NB_RIVER = (NB_SITES / 200);
@@ -53,22 +53,22 @@ var Map = {
     riversLayer: null,
     debugLayer: null,
 
-    init: function () {var t = new Date().getTime();
+    init: function () {
         this.cellsLayer = new paper.Layer({name: 'cell'});
         this.riversLayer = new paper.Layer({name: 'rivers'});
         this.debugLayer = new paper.Layer({name: 'debug', visible: false});
         
         this.seed = Math.random();
         this.perlinCanvas = document.getElementById('perlin');
-        this.perlin = perlinNoise(this.perlinCanvas, 64, 64, this.seed);console.log(new Date().getTime() - t);  
-        this.randomSites(NB_SITES);console.log(new Date().getTime() - t);
+        this.perlin = perlinNoise(this.perlinCanvas, 64, 64, this.seed);
+        this.randomSites(NB_SITES);
         
-        this.assignOceanCoastAndLand();console.log(new Date().getTime() - t);
-        this.assignRivers();console.log(new Date().getTime() - t);
-        this.assignMoisture();console.log(new Date().getTime() - t);
-        this.assignBiomes();console.log(new Date().getTime() - t);
+        this.assignOceanCoastAndLand();
+        this.assignRivers();
+        this.assignMoisture();
+        this.assignBiomes();
         
-        this.render();console.log(new Date().getTime() - t);
+        this.render();
     },
 
     randomSites: function (n) {
@@ -275,7 +275,7 @@ var Map = {
             cell.riverSize = size;
             var lowerCell = null;
             var neighbors = cell.getNeighborIds();
-            // on choisi la cellule voisine la plus basse :
+            // we choose the lowest neighbour cell :
             for (var j = 0; j < neighbors.length; j++) {
                 var nId = neighbors[j];
                 var neighbor = this.diagram.cells[nId];
@@ -284,20 +284,20 @@ var Map = {
                 }
             } 
             if (lowerCell.elevation < cell.elevation) {
-                // on continue la rivière :
+                // we continue the river :
                 this.setAsRiver(lowerCell, size);
                 cell.nextRiver = lowerCell; 
             } else {
-                // création d'un lac :
+                // lake creation :
                 cell.water = true;
                 this.fillLake(cell);
             }
         } else if (cell.water && !cell.ocean) {
-            // arrivé dans un lac :
+            // we ended in a lake :
             cell.lakeElevation = this.getRealElevation(cell) + (LAKE_THRESHOLD * size);
             this.fillLake(cell);
         } else if (cell.river) {
-            // arrivé dans une rivère :
+            // we ended in another river :
             cell.riverSize ++;
             var nextRiver = cell.nextRiver;
             while (nextRiver) {
@@ -310,7 +310,7 @@ var Map = {
     },
     
     fillLake: function(cell) {
-        if (cell.exitRiver == null) { // si le lac a une rivière de sortie il ne peut plus se remplir
+        if (cell.exitRiver == null) { // if the lake has an exit river he can not longer be filled
             var exitRiver = null;
             var exitSource = null;
             var lake = new Array();
@@ -325,22 +325,22 @@ var Map = {
                     var nId = neighbors[i];
                     var neighbor = this.diagram.cells[nId];
                     
-                    if (neighbor.water && !neighbor.ocean) { // cell d'eau du même lac
+                    if (neighbor.water && !neighbor.ocean) { // water cell from the same lake
                         if (neighbor.lakeElevation == null || neighbor.lakeElevation < c.lakeElevation) {
                             neighbor.lakeElevation = c.lakeElevation;
                             queue.push(neighbor);
                         }
-                    } else { // cell de terrain ajacente au lac
+                    } else { // ground cell adjacent to the lake
                         if (c.elevation < neighbor.elevation) {
                             if (neighbor.elevation - c.lakeElevation < 0) {
-                                // on noie le terrain
+                                // we fill the ground with water
                                 neighbor.water = true;
                                 neighbor.lakeElevation = c.lakeElevation;
                                 queue.push(neighbor);
                             }
                         } else {
                             //neighbor.source = true;
-                            // on a trouvé une sortie pour le lac :
+                            // we found an exit for the lake :
                             if (exitRiver == null) {
                                 exitSource = c;
                                 exitRiver = neighbor;
@@ -354,7 +354,7 @@ var Map = {
             }
             
             if (exitRiver != null) {
-                // rivière de sortie :
+                // exit river :
                 exitSource.river = true;
                 exitSource.nextRiver = exitRiver;
                 this.setAsRiver(exitRiver, 2);
@@ -475,9 +475,9 @@ var Map = {
     render: function () {
         if (!this.diagram) {
             return;
-        }var t = new Date().getTime();
+        }
         
-       this.renderCells();console.log('----');console.log(new Date().getTime()-t);
+       this.renderCells();
         if (BLUR > 0) {
             boxBlurCanvasRGB('voronoiCanvas', 0, 0, this.bbox.xr, this.bbox.yb, BLUR, 1);
         }        

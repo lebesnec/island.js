@@ -1,11 +1,11 @@
 paper.install(window);
 
-$(document).ready(function () {
+window.onload = function(e) {
     paper.setup('voronoiCanvas');
     
-    $('#voronoiCanvas').click(function() {
+    document.getElementById('voronoiCanvas').click(function() {
         Map.showDebug();
-        $('#perlin').toggle();
+        document.getElementById('perlin').toggle();
     });
     
     view.onResize = function(event) {
@@ -18,4 +18,4 @@ $(document).ready(function () {
     
     Map.bbox = {xl: 0, xr: view.viewSize.width, yt: 0, yb: view.viewSize.height};
     Map.init();
-});
+};
