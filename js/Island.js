@@ -35,7 +35,8 @@ var DISPLAY_COLORS = {
 };
 
 var Island = {
-    debug: false,
+    allowDebug: false, // if set to true, you can clic on the map to enter "debug" mode. Warning : debug mode is slow to initialize, set to false for faster rendering.
+    debug: false, // true if "debug" mode is activated
     voronoi: new Voronoi(),
     diagram: null,
     bbox: {
@@ -523,7 +524,7 @@ var Island = {
                 }
             }
             // source :
-            if (cell.source) {
+            if (this.allowDebug && cell.source) {
                 this.debugLayer.activate();
                 var circle = new Path.Circle(new Point(cell.site.x, cell.site.y), 3);
                 circle.fillColor = DISPLAY_COLORS.SOURCE;
@@ -532,48 +533,52 @@ var Island = {
     },
     
     renderEdges: function() {
-        this.debugLayer.activate();
-        var edges = this.diagram.edges,
-            iEdge = edges.length,
-            edge, v;
-        while (iEdge--) {
-            edge = edges[iEdge];
-            var edgePath = new Path();
-            edgePath.strokeWidth = 1;
+        if (this.allowDebug) {
+            this.debugLayer.activate();
+            var edges = this.diagram.edges,
+                iEdge = edges.length,
+                edge, v;
+            while (iEdge--) {
+                edge = edges[iEdge];
+                var edgePath = new Path();
+                edgePath.strokeWidth = 1;
 
-            if (edge.cliff) {
-                edgePath.strokeWidth = 1;
-                edgePath.strokeCap = 'round';
-                edgePath.strokeColor = DISPLAY_COLORS.ROCK;
-            } else {
-                edgePath.strokeWidth = 1;
-                edgePath.strokeColor = '#000';
+                if (edge.cliff) {
+                    edgePath.strokeWidth = 1;
+                    edgePath.strokeCap = 'round';
+                    edgePath.strokeColor = DISPLAY_COLORS.ROCK;
+                } else {
+                    edgePath.strokeWidth = 1;
+                    edgePath.strokeColor = '#000';
+                }
+                v = edge.va;
+                edgePath.add(new Point(v.x, v.y));
+                v = edge.vb;
+                edgePath.add(new Point(v.x, v.y));
             }
-            v = edge.va;
-            edgePath.add(new Point(v.x, v.y));
-            v = edge.vb;
-            edgePath.add(new Point(v.x, v.y));
         }
     },
     
     renderSites: function() {
-        this.debugLayer.activate();
-        // sites :
-        var sites = this.sites,
-            iSite = sites.length;
-        while (iSite--) {
-            v = sites[iSite];
-            var circle = new Path.Circle(new Point(v.x, v.y), 1);
-            circle.fillColor = '#0f0';
-        }       
+        if (this.allowDebug) {
+            this.debugLayer.activate();
+            // sites :
+            var sites = this.sites,
+                iSite = sites.length;
+            while (iSite--) {
+                v = sites[iSite];
+                var circle = new Path.Circle(new Point(v.x, v.y), 1);
+                circle.fillColor = '#0f0';
+            }       
 
-        // values :
-        for (var i = 0; i < this.diagram.cells.length; i++) {
-            var cell = this.diagram.cells[i];
-            var text = new PointText(new Point(cell.site.x, cell.site.y));
-            text.fillColor = '#f00';
-            text.fontSize = '8px';
-            text.content = Math.ceil(this.getRealElevation(cell) * 100);
+            // values :
+            for (var i = 0; i < this.diagram.cells.length; i++) {
+                var cell = this.diagram.cells[i];
+                var text = new PointText(new Point(cell.site.x, cell.site.y));
+                text.fillColor = '#f00';
+                text.fontSize = '8px';
+                text.content = Math.ceil(this.getRealElevation(cell) * 100);
+            }
         }
     },
     
