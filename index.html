@@ -11,13 +11,29 @@
         <script type="text/javascript" src="js/Simplex.js"></script>
         <script type="text/javascript" src="js/perlin.js"></script>
         <script type="text/javascript" src="js/Island.js"></script>
-        <script type="text/javascript" src="js/main.js"></script>
 	</head>
 
-	<body>        
-        <noscript>You need to enable Javascript in your browser for this page to display properly.</noscript>
-
+	<body>
         <canvas id="island" resize="true"></canvas>
         <canvas id="perlin" width="256" height="256" hidden="true"></canvas>
+        
+        <script type="application/javascript">
+            paper.install(window);
+            window.onload = function(e) {
+                paper.setup('island');
+
+                var islandCanvas = document.getElementById('island');
+                var perlinCanvas = document.getElementById('perlin');
+
+                islandCanvas.onclick = function() {
+                    Island.toggleDebug();
+                    perlinCanvas.style.display = (perlinCanvas.style.display == 'block' ? 'none' : 'block');
+                };
+
+                Island.bbox = {xl: 0, xr: view.viewSize.width, yt: 0, yb: view.viewSize.height};
+                Island.init();
+            };
+        </script>
+        <noscript>You need to enable Javascript in your browser for this page to display properly.</noscript>
 	</body>
 </html>
