@@ -38,7 +38,6 @@ var Island = {
     debug: false,
     voronoi: new Voronoi(),
     diagram: null,
-    margin: 0.0,
     bbox: {
         xl: 0,
         xr: 800,
@@ -52,7 +51,11 @@ var Island = {
     riversLayer: null,
     debugLayer: null,
 
-    init: function () {
+    init: function (config) {
+        if (config) {
+            
+        }        
+        
         this.cellsLayer = new paper.Layer({name: 'cell'});
         this.riversLayer = new paper.Layer({name: 'rivers'});
         this.debugLayer = new paper.Layer({name: 'debug', visible: false});
@@ -75,16 +78,10 @@ var Island = {
 
         // create vertices
         if (SITES_GRID == 'random') {
-            var xmargin = this.bbox.xr * this.margin,
-                ymargin = this.bbox.yb * this.margin,
-                xo = xmargin,
-                dx = this.bbox.xr - xmargin * 2,
-                yo = ymargin,
-                dy = this.bbox.yb - ymargin * 2;
             for (var i = 0; i < n; i++) {
                 sites.push({
-                    x: Math.round((xo + Math.random() * dx) * 10) / 10,
-                    y: Math.round((yo + Math.random() * dy) * 10) / 10
+                    x: Math.round(Math.random() * this.bbox.xr),
+                    y: Math.round(Math.random() * this.bbox.yb)
                 });
             }
         } else if (SITES_GRID == 'square' || SITES_GRID == 'hexagon') {
