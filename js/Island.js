@@ -26,6 +26,8 @@ var DISPLAY_COLORS = {
 
 var Island = {
     config: {
+        width: 500,
+        height: 500,
         allowDebug: false, // if set to true, you can clic on the map to enter "debug" mode. Warning : debug mode is slow to initialize, set to false for faster rendering.
         nbSites: 10000, // nb of voronoi cell
         sitesDistribution: 'hexagon', // distribution of the site : random, square or hexagon
@@ -40,12 +42,6 @@ var Island = {
     debug: false, // true if "debug" mode is activated
     voronoi: new Voronoi(),
     diagram: null,
-    bbox: {
-        xl: 0,
-        xr: 800,
-        yt: 0,
-        yb: 600
-    },
     sites: [],
     seed: -1,
     perlin: null,
@@ -54,7 +50,11 @@ var Island = {
     debugLayer: null,
 
     init: function (userConfig) {
+        this.config.width = view.viewSize.width;
+        this.config.height = view.viewSize.height;
         if (userConfig != undefined) {
+            this.config.width = (userConfig.width != undefined ? userConfig.width : this.config.width);
+            this.config.height = (userConfig.height != undefined ? userConfig.height : this.config.height);
             this.config.allowDebug = (userConfig.allowDebug != undefined ? userConfig.allowDebug : this.config.allowDebug);
             this.config.nbSites = (userConfig.nbSites != undefined ? userConfig.nbSites : this.config.nbSites);
             this.config.sitesDistribution = (userConfig.sitesDistribution != undefined ? userConfig.sitesDistribution : this.config.sitesDistribution);
@@ -91,22 +91,22 @@ var Island = {
         if (this.config.sitesDistribution == 'random') {
             for (var i = 0; i < this.config.nbSites; i++) {
                 sites.push({
-                    x: Math.round(Math.random() * this.bbox.xr),
-                    y: Math.round(Math.random() * this.bbox.yb)
+                    x: Math.round(Math.random() * this.config.width),
+                    y: Math.round(Math.random() * this.config.height)
                 });
             }
         } else {
-            var delta = Math.sqrt(this.bbox.xr * this.bbox.yb / this.config.nbSites);
+            var delta = Math.sqrt(this.config.width * this.config.height / this.config.nbSites);
             var rand = this.config.sitesRandomisation * delta / 100;
             var x = 0;
             var y = 0;
             for (var i = 0; i < this.config.nbSites; i++) {
                 sites.push({
-                    x: Math.max(Math.min(Math.round(x * delta + (Math.random() * rand)), this.bbox.xr), 0),
-                    y: Math.max(Math.min(Math.round(y * delta + (Math.random() * rand)), this.bbox.yb), 0)
+                    x: Math.max(Math.min(Math.round(x * delta + (Math.random() * rand)), this.config.width), 0),
+                    y: Math.max(Math.min(Math.round(y * delta + (Math.random() * rand)), this.config.height), 0)
                 });
                 x = x + 1;
-                if (x * delta > this.bbox.xr) {
+                if (x * delta > this.config.width) {
                     x = (y % 2 == 1 || this.config.sitesDistribution == 'square' ? 0 : 0.5);
                     y = y + 1;
                 }
@@ -121,7 +121,8 @@ var Island = {
     compute: function (sites) {
         this.sites = sites;
         this.voronoi.recycle(this.diagram);
-        this.diagram = this.voronoi.compute(sites, this.bbox);
+        var bbox = {xl: 0, xr: this.config.width, yt: 0, yb: this.config.height};
+        this.diagram = this.voronoi.compute(sites, bbox);
     },
 
     relaxSites: function () {
@@ -450,8 +451,8 @@ var Island = {
 
     // The Perlin-based island combines perlin noise with the radius
     getElevation: function (point) {
-        var x = 2 * (point.x / this.bbox.xr - 0.5);
-        var y = 2 * (point.y / this.bbox.yb - 0.5);
+        var x = 2 * (point.x / this.config.width - 0.5);
+        var y = 2 * (point.y / this.config.height - 0.5);
         var length = Math.sqrt(x * x + y * y);
         var c = this.getPerlinValue(point); 
 
@@ -460,8 +461,8 @@ var Island = {
     },
     
     getPerlinValue: function(point) {
-        var x = ((point.x / this.bbox.xr) * this.perlin.width) | 0;
-        var y = ((point.y / this.bbox.yb) * this.perlin.height) | 0;        
+        var x = ((point.x / this.config.width) * this.perlin.width) | 0;
+        var y = ((point.y / this.config.height) * this.perlin.height) | 0;        
         var pos = (x + y * this.perlin.width) * 4;
         var data = this.perlin.data;
         var val = data[pos + 0] << 16 | data[pos + 1] << 8 | data[pos + 2]; // rgb to hex
