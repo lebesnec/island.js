@@ -1,13 +1,3 @@
-var NB_SITES = 10000; // nb of voronoi cell
-var SITES_GRID = 'hexagon'; // distribution of the site : random, square or hexagon
-var SITES_RANDOMISATION = 80; // will move each site in a random way (in %), for the square or hexagon distribution to look more random
-var NB_GRAPH_RELAX = 0; // nb of time we apply the relaxation algo to the voronoi graph (slow !), for the random distribution to look less random
-var CLIFF_THRESHOLD = 0.15;
-var LAKE_THRESHOLD = 0.005;
-var NB_RIVER = (NB_SITES / 200);
-var SHADE = 0.5;
-var MAX_RIVER_SIZE = 4;
-
 var DISPLAY_COLORS = {
     OCEAN: new paper.Color('#82caff'),
     BEACH: new paper.Color('#ffe98d'),
@@ -35,7 +25,18 @@ var DISPLAY_COLORS = {
 };
 
 var Island = {
-    allowDebug: false, // if set to true, you can clic on the map to enter "debug" mode. Warning : debug mode is slow to initialize, set to false for faster rendering.
+    config: {
+        allowDebug: false, // if set to true, you can clic on the map to enter "debug" mode. Warning : debug mode is slow to initialize, set to false for faster rendering.
+        nbSites: 10000, // nb of voronoi cell
+        sitesDistribution: 'hexagon', // distribution of the site : random, square or hexagon
+        sitesRandomisation: 80, // will move each site in a random way (in %), for the square or hexagon distribution to look more random
+        nbGraphRelaxation: 0, // nb of time we apply the relaxation algo to the voronoi graph (slow !), for the random distribution to look less random
+        cliffsThreshold: 0.15,
+        lakesThreshold: 0.005,
+        nbRivers: (10000 / 200),
+        maxRiversSize: 4,
+        shading: 0.5
+    },
     debug: false, // true if "debug" mode is activated
     voronoi: new Voronoi(),
     diagram: null,
@@ -52,10 +53,19 @@ var Island = {
     riversLayer: null,
     debugLayer: null,
 
-    init: function (config) {
-        if (config) {
-            
-        }        
+    init: function (userConfig) {
+        if (userConfig != undefined) {
+            this.config.allowDebug = (userConfig.allowDebug != undefined ? userConfig.allowDebug : this.config.allowDebug);
+            this.config.nbSites = (userConfig.nbSites != undefined ? userConfig.nbSites : this.config.nbSites);
+            this.config.sitesDistribution = (userConfig.sitesDistribution != undefined ? userConfig.sitesDistribution : this.config.sitesDistribution);
+            this.config.sitesRandomisation = (userConfig.sitesRandomisation != undefined ? userConfig.sitesRandomisation : this.config.sitesRandomisation);
+            this.config.nbGraphRelaxation = (userConfig.nbGraphRelaxation != undefined ? userConfig.nbGraphRelaxation : this.config.nbGraphRelaxation);
+            this.config.cliffsThreshold = (userConfig.cliffsThreshold != undefined ? userConfig.cliffsThreshold : this.config.cliffsThreshold);
+            this.config.lakesThreshold = (userConfig.lakesThreshold != undefined ? userConfig.lakesThreshold : this.config.lakesThreshold);
+            this.config.nbRivers = (userConfig.nbRivers != undefined ? userConfig.nbRivers : (this.config.nbSites / 200));
+            this.config.maxRiversSize = (userConfig.maxRiversSize != undefined ? userConfig.maxRiversSize : this.config.maxRiversSize);
+            this.config.shading = (userConfig.shading != undefined ? userConfig.shading : this.config.shading);
+        }
         
         this.cellsLayer = new paper.Layer({name: 'cell'});
         this.riversLayer = new paper.Layer({name: 'rivers'});
@@ -64,7 +74,7 @@ var Island = {
         this.seed = Math.random();
         this.perlinCanvas = document.getElementById('perlin');
         this.perlin = perlinNoise(this.perlinCanvas, 64, 64, this.seed);
-        this.randomSites(NB_SITES);
+        this.randomSites();
         
         this.assignOceanCoastAndLand();
         this.assignRivers();
@@ -78,32 +88,32 @@ var Island = {
         var sites = [];
 
         // create vertices
-        if (SITES_GRID == 'random') {
-            for (var i = 0; i < n; i++) {
+        if (this.config.sitesDistribution == 'random') {
+            for (var i = 0; i < this.config.nbSites; i++) {
                 sites.push({
                     x: Math.round(Math.random() * this.bbox.xr),
                     y: Math.round(Math.random() * this.bbox.yb)
                 });
             }
-        } else if (SITES_GRID == 'square' || SITES_GRID == 'hexagon') {
-            var delta = Math.sqrt(this.bbox.xr * this.bbox.yb / n);
-            var rand = SITES_RANDOMISATION * delta / 100;
+        } else {
+            var delta = Math.sqrt(this.bbox.xr * this.bbox.yb / this.config.nbSites);
+            var rand = this.config.sitesRandomisation * delta / 100;
             var x = 0;
             var y = 0;
-            for (var i = 0; i < n; i++) {
+            for (var i = 0; i < this.config.nbSites; i++) {
                 sites.push({
                     x: Math.max(Math.min(Math.round(x * delta + (Math.random() * rand)), this.bbox.xr), 0),
                     y: Math.max(Math.min(Math.round(y * delta + (Math.random() * rand)), this.bbox.yb), 0)
                 });
                 x = x + 1;
                 if (x * delta > this.bbox.xr) {
-                    x = (y % 2 == 1 || SITES_GRID == 'square' ? 0 : 0.5);
+                    x = (y % 2 == 1 || this.config.sitesDistribution == 'square' ? 0 : 0.5);
                     y = y + 1;
                 }
             }
         }
         this.compute(sites);
-        for (var i = 0; i < NB_GRAPH_RELAX; i++) {
+        for (var i = 0; i < this.config.nbGraphRelaxation; i++) {
             this.relaxSites();
         }
     },
@@ -240,7 +250,7 @@ var Island = {
                 }
             } 
             cell.coast = (numOcean > 0) && (!cell.water);
-            cell.beach = (cell.coast && cell.elevation < CLIFF_THRESHOLD);
+            cell.beach = (cell.coast && cell.elevation < this.config.cliffsThreshold);
         }
         
         // cliff
@@ -249,13 +259,13 @@ var Island = {
             if (edge.lSite != null && edge.rSite != null) {
                 var lCell = this.diagram.cells[edge.lSite.voronoiId];
                 var rCell = this.diagram.cells[edge.rSite.voronoiId];      
-                edge.cliff = (!(lCell.water && rCell.water) && (Math.abs(this.getRealElevation(lCell) - this.getRealElevation(rCell)) >= CLIFF_THRESHOLD));
+                edge.cliff = (!(lCell.water && rCell.water) && (Math.abs(this.getRealElevation(lCell) - this.getRealElevation(rCell)) >= this.config.cliffsThreshold));
             }            
         }
     }, 
     
     assignRivers: function() {
-        for (var i = 0; i < NB_RIVER; ) {
+        for (var i = 0; i < this.config.nbRivers;) {
             var cell = this.diagram.cells[this.getRandomInt(0, this.diagram.cells.length - 1)];
             if (!cell.coast) {
                 if (this.setAsRiver(cell, 1)) {
@@ -291,7 +301,7 @@ var Island = {
             }
         } else if (cell.water && !cell.ocean) {
             // we ended in a lake :
-            cell.lakeElevation = this.getRealElevation(cell) + (LAKE_THRESHOLD * size);
+            cell.lakeElevation = this.getRealElevation(cell) + (this.config.lakesThreshold * size);
             this.fillLake(cell);
         } else if (cell.river) {
             // we ended in another river :
@@ -507,8 +517,7 @@ var Island = {
             if (cell.nextRiver) {
                 this.riversLayer.activate();
                 var riverPath = new Path();
-                riverPath.strokeWidth = Math.min(cell.riverSize, MAX_RIVER_SIZE);
-                riverPath.strokeWidth = Math.min(cell.riverSize, MAX_RIVER_SIZE);
+                riverPath.strokeWidth = Math.min(cell.riverSize, this.config.maxRiversSize);
                 var riverColor = DISPLAY_COLORS.RIVER;
                 riverColor.brightness = this.getShade(cell);
                 riverPath.strokeColor = riverColor;
@@ -524,7 +533,7 @@ var Island = {
                 }
             }
             // source :
-            if (this.allowDebug && cell.source) {
+            if (this.config.allowDebug && cell.source) {
                 this.debugLayer.activate();
                 var circle = new Path.Circle(new Point(cell.site.x, cell.site.y), 3);
                 circle.fillColor = DISPLAY_COLORS.SOURCE;
@@ -533,7 +542,7 @@ var Island = {
     },
     
     renderEdges: function() {
-        if (this.allowDebug) {
+        if (this.config.allowDebug) {
             this.debugLayer.activate();
             var edges = this.diagram.edges,
                 iEdge = edges.length,
@@ -560,7 +569,7 @@ var Island = {
     },
     
     renderSites: function() {
-        if (this.allowDebug) {
+        if (this.config.allowDebug) {
             this.debugLayer.activate();
             // sites :
             var sites = this.sites,
@@ -617,8 +626,8 @@ var Island = {
             var angleDegree = angleRadian * (180 / Math.PI);
             var diffElevation = (this.getRealElevation(upperCell) - this.getRealElevation(lowerCell));
             
-            if (diffElevation + SHADE < 1) {
-                diffElevation = diffElevation + SHADE;
+            if (diffElevation + this.config.shading < 1) {
+                diffElevation = diffElevation + this.config.shading;
             }
             
             return 1 - ((Math.abs(angleDegree) / 180) * diffElevation);
