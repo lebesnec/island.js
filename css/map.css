@@ -4,6 +4,6 @@ body {
     padding: 0:
 }
 
-#voronoiCanvas { 
-    display: block;  To remove the scrollbars 
+#island { 
+    display: block;
 } 

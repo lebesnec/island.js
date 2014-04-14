@@ -1,15 +1,14 @@
-var NB_SITES = 15000;
-var SITES_GRID = 'hexagon'; // random, square or hexagon
-var SITES_RANDOMISATION = 80; // %
+var NB_SITES = 10000; // nb of voronoi cell
+var SITES_GRID = 'hexagon'; // distribution of the site : random, square or hexagon
+var SITES_RANDOMISATION = 80; // will move each site in a random way (in %), for the square or hexagon distribution to look more random
+var NB_GRAPH_RELAX = 0; // nb of time we apply the relaxation algo to the voronoi graph (slow !), for the random distribution to look less random
 var CLIFF_THRESHOLD = 0.15;
 var LAKE_THRESHOLD = 0.005;
 var NB_RIVER = (NB_SITES / 200);
-var NB_GRAPH_RELAX = 0;
 var SHADE = 0.5;
-var BLUR = 0;
 var MAX_RIVER_SIZE = 4;
 
-var displayColors = {
+var DISPLAY_COLORS = {
     OCEAN: new paper.Color('#82caff'),
     BEACH: new paper.Color('#ffe98d'),
     LAKE: new paper.Color('#2f9ceb'),
@@ -135,7 +134,7 @@ var Island = {
                 continue;
             }
             site = this.cellCentroid(cell);
-            dist = distance(site, cell.site);
+            dist = this.distance(site, cell.site);
             // don't relax too fast
             if (dist > 2) {
                 site.x = (site.x + cell.site.x) / 2;
@@ -259,7 +258,7 @@ var Island = {
     
     assignRivers: function() {
         for (var i = 0; i < NB_RIVER; ) {
-            var cell = this.diagram.cells[getRandomInt(0, this.diagram.cells.length - 1)];
+            var cell = this.diagram.cells[this.getRandomInt(0, this.diagram.cells.length - 1)];
             if (!cell.coast) {
                 if (this.setAsRiver(cell, 1)) {
                     cell.source = true;
@@ -477,15 +476,10 @@ var Island = {
             return;
         }
         
-       this.renderCells();
-        if (BLUR > 0) {
-            boxBlurCanvasRGB('voronoiCanvas', 0, 0, this.bbox.xr, this.bbox.yb, BLUR, 1);
-        }        
+        this.renderCells();       
         this.renderRivers();
-        if (this.debug) {
-            this.renderEdges();
-            this.renderSites();
-        }
+        this.renderEdges();
+        this.renderSites();
     },
     
     renderCells: function() {
@@ -517,7 +511,7 @@ var Island = {
                 var riverPath = new Path();
                 riverPath.strokeWidth = Math.min(cell.riverSize, MAX_RIVER_SIZE);
                 riverPath.strokeWidth = Math.min(cell.riverSize, MAX_RIVER_SIZE);
-                var riverColor = displayColors.RIVER;
+                var riverColor = DISPLAY_COLORS.RIVER;
                 riverColor.brightness = this.getShade(cell);
                 riverPath.strokeColor = riverColor;
                 if (cell.water) {
@@ -535,7 +529,7 @@ var Island = {
             if (cell.source) {
                 this.debugLayer.activate();
                 var circle = new Path.Circle(new Point(cell.site.x, cell.site.y), 3);
-                circle.fillColor = displayColors.SOURCE;
+                circle.fillColor = DISPLAY_COLORS.SOURCE;
             }
         }
     },
@@ -553,7 +547,7 @@ var Island = {
             if (edge.cliff) {
                 edgePath.strokeWidth = 1;
                 edgePath.strokeCap = 'round';
-                edgePath.strokeColor = displayColors.ROCK;
+                edgePath.strokeColor = DISPLAY_COLORS.ROCK;
             } else {
                 edgePath.strokeWidth = 1;
                 edgePath.strokeColor = '#000';
@@ -567,16 +561,16 @@ var Island = {
     
     renderSites: function() {
         this.debugLayer.activate();
-        // sites
+        // sites :
         var sites = this.sites,
             iSite = sites.length;
         while (iSite--) {
             v = sites[iSite];
-            var circle = new Path.Circle(new Point(v.x, v.y), 2);
+            var circle = new Path.Circle(new Point(v.x, v.y), 1);
             circle.fillColor = '#0f0';
         }       
 
-        // valeur
+        // values :
         for (var i = 0; i < this.diagram.cells.length; i++) {
             var cell = this.diagram.cells[i];
             var text = new PointText(new Point(cell.site.x, cell.site.y));
@@ -587,13 +581,13 @@ var Island = {
     },
     
     getCellColor: function(cell) {
-        var c = displayColors[cell.biome];
-        if (cell.water) {
+        var c = DISPLAY_COLORS[cell.biome];
+        if (cell.ocean) {
             c.brightness = 1 + cell.elevation;
-            //return increaseBrightness(displayColors[cell.biome], cell.elevation * 100);
+        } else if (cell.water) {
+            c.brightness = 1;
         } else {
             c.brightness = this.getShade(cell);
-            //return decreaseBrightness(displayColors[cell.biome], this.getShade(cell));
         }
         return c;
     },
@@ -629,10 +623,19 @@ var Island = {
         }
     },
         
-    showDebug: function() {//TODO
+    toggleDebug: function() {
         this.debug = !this.debug;
         this.debugLayer.visible = this.debug;
-        view.draw();
+    },
+    
+    getRandomInt: function(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    },
+
+    distance: function(a, b) {
+        var dx = a.x - b.x,
+            dy = a.y - b.y;
+        return Math.sqrt(dx * dx + dy * dy);
     }
 
 };
