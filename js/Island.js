@@ -524,6 +524,7 @@ var Island = {
                 var riverColor = DISPLAY_COLORS.RIVER.clone();
                 riverColor.brightness = riverColor.brightness - this.getShade(cell);
                 riverPath.strokeColor = riverColor;
+                riverPath.strokeCap = 'round';
                 if (cell.water) {
                     riverPath.add(new Point(cell.site.x + (cell.nextRiver.site.x - cell.site.x) / 2, cell.site.y + (cell.nextRiver.site.y - cell.site.y) / 2));
                 } else {
