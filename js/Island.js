@@ -5,7 +5,7 @@ var DISPLAY_COLORS = {
     RIVER: new paper.Color('#369eea'),
     SOURCE: new paper.Color('#00f'),
     MARSH: new paper.Color('#2ac6d3'),
-    ICE: new paper.Color('#ceeaff'),
+    ICE: new paper.Color('#b3deff'),
     ROCK: new paper.Color('#535353'),
     LAVA: new paper.Color('#e22222'),
 
@@ -423,8 +423,8 @@ var Island = {
         if (cell.ocean) {
             return 'OCEAN';
         } else if (cell.water) {
-            if (cell.elevation < 0.05) return 'MARSH';
-            if (cell.elevation > 0.4) return 'ICE';
+            if (this.getRealElevation(cell) < 0.05) return 'MARSH';
+            if (this.getRealElevation(cell) > 0.4) return 'ICE';
             return 'LAKE';
         } else if (cell.beach) {
             return 'BEACH';
