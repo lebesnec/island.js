@@ -4,8 +4,8 @@ var DISPLAY_COLORS = {
     LAKE: new paper.Color('#2f9ceb'),
     RIVER: new paper.Color('#369eea'),
     SOURCE: new paper.Color('#00f'),
-    MARSH: new paper.Color('#2ab2d3'),
-    ICE: new paper.Color('#bde3ff'),
+    MARSH: new paper.Color('#2ac6d3'),
+    ICE: new paper.Color('#ceeaff'),
     ROCK: new paper.Color('#535353'),
     LAVA: new paper.Color('#e22222'),
 
@@ -37,7 +37,7 @@ var Island = {
         lakesThreshold: 0.005,
         nbRivers: (10000 / 200),
         maxRiversSize: 4,
-        shading: 0.5
+        shading: 0.35
     },
     debug: false, // true if "debug" mode is activated
     voronoi: new Voronoi(),
@@ -485,10 +485,12 @@ var Island = {
             return;
         }
         
-        this.renderCells();       
+        this.renderCells();
         this.renderRivers();
         this.renderEdges();
         this.renderSites();
+        
+        paper.view.draw();
     },
     
     renderCells: function() {
@@ -500,7 +502,7 @@ var Island = {
             var cellPath = new Path();
             cellPath.strokeWidth = 1;
             cellPath.strokeColor = color;
-            cellPath.fillColor = color;             
+            cellPath.fillColor = color;
             var start =  cell.halfedges[0].getStartpoint();
             cellPath.add(new Point(start.x, start.y));
             for (var iHalfedge = 0; iHalfedge < cell.halfedges.length; iHalfedge++) {
@@ -519,8 +521,8 @@ var Island = {
                 this.riversLayer.activate();
                 var riverPath = new Path();
                 riverPath.strokeWidth = Math.min(cell.riverSize, this.config.maxRiversSize);
-                var riverColor = DISPLAY_COLORS.RIVER;
-                riverColor.brightness = this.getShade(cell);
+                var riverColor = DISPLAY_COLORS.RIVER.clone();
+                riverColor.brightness = riverColor.brightness - this.getShade(cell);
                 riverPath.strokeColor = riverColor;
                 if (cell.water) {
                     riverPath.add(new Point(cell.site.x + (cell.nextRiver.site.x - cell.site.x) / 2, cell.site.y + (cell.nextRiver.site.y - cell.site.y) / 2));
@@ -593,13 +595,13 @@ var Island = {
     },
     
     getCellColor: function(cell) {
-        var c = DISPLAY_COLORS[cell.biome];
+        var c = DISPLAY_COLORS[cell.biome].clone();
         if (cell.ocean) {
-            c.brightness = 1 + cell.elevation;
+            c.brightness = c.brightness + cell.elevation;
         } else if (cell.water) {
-            c.brightness = 1;
+            // leave brightness alone !
         } else {
-            c.brightness = this.getShade(cell);
+            c.brightness = c.brightness - this.getShade(cell);
         }
         return c;
     },
@@ -631,7 +633,7 @@ var Island = {
                 diffElevation = diffElevation + this.config.shading;
             }
             
-            return 1 - ((Math.abs(angleDegree) / 180) * diffElevation);
+            return ((Math.abs(angleDegree) / 180) * diffElevation);
         }
     },
         
