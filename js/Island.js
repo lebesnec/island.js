@@ -34,7 +34,7 @@ var Island = {
         sitesRandomisation: 80, // will move each site in a random way (in %), for the square or hexagon distribution to look more random
         nbGraphRelaxation: 0, // nb of time we apply the relaxation algo to the voronoi graph (slow !), for the random distribution to look less random
         cliffsThreshold: 0.15,
-        lakesThreshold: 0.005,
+        lakesThreshold: 0.005, // lake elevation will increase by this value (* the river size) when a new river end inside
         nbRivers: (10000 / 200),
         maxRiversSize: 4,
         shading: 0.35,
@@ -294,20 +294,20 @@ var Island = {
                 }
             } 
             if (lowerCell.elevation < cell.elevation) {
-                // we continue the river :
+                // we continue the river to the next lowest cell :
                 this.setAsRiver(lowerCell, size);
                 cell.nextRiver = lowerCell; 
             } else {
-                // lake creation :
+                // we are in a hole, so we create a lake :
                 cell.water = true;
                 this.fillLake(cell);
             }
         } else if (cell.water && !cell.ocean) {
-            // we ended in a lake :
+            // we ended in a lake, the water level rise :
             cell.lakeElevation = this.getRealElevation(cell) + (this.config.lakesThreshold * size);
             this.fillLake(cell);
         } else if (cell.river) {
-            // we ended in another river :
+            // we ended in another river, the river size increase :
             cell.riverSize ++;
             var nextRiver = cell.nextRiver;
             while (nextRiver) {
@@ -320,7 +320,8 @@ var Island = {
     },
     
     fillLake: function(cell) {
-        if (cell.exitRiver == null) { // if the lake has an exit river he can not longer be filled
+        // if the lake has an exit river he can not longer be filled
+        if (cell.exitRiver == null) { 
             var exitRiver = null;
             var exitSource = null;
             var lake = new Array();
@@ -350,24 +351,22 @@ var Island = {
                             }
                         } else {
                             //neighbor.source = true;
-                            // we found an exit for the lake :
-                            if (exitRiver == null) {
+                            // we found an new exit for the lake :
+                            if (exitRiver == null || exitRiver.elevation > neighbor.elevation) {
                                 exitSource = c;
                                 exitRiver = neighbor;
-                            } else if (exitRiver.elevation > neighbor.elevation) {
-                                exitSource = c;
-                                exitRiver = neighbor;
-                            }
+                            } 
                         }
                     }
                 } 
             }
             
             if (exitRiver != null) {
-                // exit river :
+                // we start the exit river :
                 exitSource.river = true;
                 exitSource.nextRiver = exitRiver;
                 this.setAsRiver(exitRiver, 2);
+                // we mark all the lake as having an exit river :
                 while (lake.length > 0) {
                     var c = lake.shift();
                     c.exitRiver = exitRiver;
