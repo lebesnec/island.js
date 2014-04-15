@@ -28,6 +28,8 @@ var Island = {
     config: {
         width: 500,
         height: 500,
+        perlinWidth: 256,
+        perlinHeight: 256,
         allowDebug: false, // if set to true, you can clic on the map to enter "debug" mode. Warning : debug mode is slow to initialize, set to false for faster rendering.
         nbSites: 10000, // nb of voronoi cell
         sitesDistribution: 'hexagon', // distribution of the site : random, square or hexagon
@@ -56,6 +58,8 @@ var Island = {
         if (userConfig != undefined) {
             this.config.width = (userConfig.width != undefined ? userConfig.width : this.config.width);
             this.config.height = (userConfig.height != undefined ? userConfig.height : this.config.height);
+            this.config.perlinWidth = (userConfig.perlinWidth != undefined ? userConfig.perlinWidth : this.config.perlinWidth);
+            this.config.perlinHeight = (userConfig.perlinHeight != undefined ? userConfig.perlinHeight : this.config.perlinHeight);
             this.config.allowDebug = (userConfig.allowDebug != undefined ? userConfig.allowDebug : this.config.allowDebug);
             this.config.nbSites = (userConfig.nbSites != undefined ? userConfig.nbSites : this.config.nbSites);
             this.config.sitesDistribution = (userConfig.sitesDistribution != undefined ? userConfig.sitesDistribution : this.config.sitesDistribution);
@@ -75,6 +79,8 @@ var Island = {
         
         this.seed = Math.random();
         this.perlinCanvas = document.getElementById('perlin');
+        this.perlinCanvas.width = this.config.perlinWidth;
+        this.perlinCanvas.height = this.config.perlinHeight;
         this.perlin = perlinNoise(this.perlinCanvas, 64, 64, this.seed);
         this.randomSites();
         
