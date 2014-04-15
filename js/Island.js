@@ -37,7 +37,8 @@ var Island = {
         lakesThreshold: 0.005,
         nbRivers: (10000 / 200),
         maxRiversSize: 4,
-        shading: 0.35
+        shading: 0.35,
+        shadeOcean: true
     },
     debug: false, // true if "debug" mode is activated
     voronoi: new Voronoi(),
@@ -65,6 +66,7 @@ var Island = {
             this.config.nbRivers = (userConfig.nbRivers != undefined ? userConfig.nbRivers : (this.config.nbSites / 200));
             this.config.maxRiversSize = (userConfig.maxRiversSize != undefined ? userConfig.maxRiversSize : this.config.maxRiversSize);
             this.config.shading = (userConfig.shading != undefined ? userConfig.shading : this.config.shading);
+            this.config.shadeOcean = (userConfig.shadeOcean != undefined ? userConfig.shadeOcean : this.config.shadeOcean);
         }
         
         this.cellsLayer = new paper.Layer({name: 'cell'});
@@ -597,18 +599,19 @@ var Island = {
     
     getCellColor: function(cell) {
         var c = DISPLAY_COLORS[cell.biome].clone();
-        if (cell.ocean) {
-            c.brightness = c.brightness + cell.elevation;
-        } else if (cell.water) {
-            // leave brightness alone !
-        } else {
-            c.brightness = c.brightness - this.getShade(cell);
-        }
+        c.brightness = c.brightness - this.getShade(cell);
+        
         return c;
     },
     
     getShade: function(cell) {
-        if (cell.water) {
+        if (this.config.shading == 0) {
+            return 0;
+            
+        } else if (cell.ocean) {
+            return (this.config.shadeOcean ? - cell.elevation : 0);
+            
+        } else if (cell.water) {
             return 0;
             
         } else {
