@@ -52,26 +52,26 @@ var Island = {
     riversLayer: null,
     debugLayer: null,
 
-    init: function (userConfig) {
-        this.config.width = view.viewSize.width;
-        this.config.height = view.viewSize.height;
-        if (userConfig != undefined) {
-            this.config.width = (userConfig.width != undefined ? userConfig.width : this.config.width);
-            this.config.height = (userConfig.height != undefined ? userConfig.height : this.config.height);
-            this.config.perlinWidth = (userConfig.perlinWidth != undefined ? userConfig.perlinWidth : this.config.perlinWidth);
-            this.config.perlinHeight = (userConfig.perlinHeight != undefined ? userConfig.perlinHeight : this.config.perlinHeight);
-            this.config.allowDebug = (userConfig.allowDebug != undefined ? userConfig.allowDebug : this.config.allowDebug);
-            this.config.nbSites = (userConfig.nbSites != undefined ? userConfig.nbSites : this.config.nbSites);
-            this.config.sitesDistribution = (userConfig.sitesDistribution != undefined ? userConfig.sitesDistribution : this.config.sitesDistribution);
-            this.config.sitesRandomisation = (userConfig.sitesRandomisation != undefined ? userConfig.sitesRandomisation : this.config.sitesRandomisation);
-            this.config.nbGraphRelaxation = (userConfig.nbGraphRelaxation != undefined ? userConfig.nbGraphRelaxation : this.config.nbGraphRelaxation);
-            this.config.cliffsThreshold = (userConfig.cliffsThreshold != undefined ? userConfig.cliffsThreshold : this.config.cliffsThreshold);
-            this.config.lakesThreshold = (userConfig.lakesThreshold != undefined ? userConfig.lakesThreshold : this.config.lakesThreshold);
-            this.config.nbRivers = (userConfig.nbRivers != undefined ? userConfig.nbRivers : (this.config.nbSites / 200));
-            this.config.maxRiversSize = (userConfig.maxRiversSize != undefined ? userConfig.maxRiversSize : this.config.maxRiversSize);
-            this.config.shading = (userConfig.shading != undefined ? userConfig.shading : this.config.shading);
-            this.config.shadeOcean = (userConfig.shadeOcean != undefined ? userConfig.shadeOcean : this.config.shadeOcean);
+    init: function (userConfig) {        
+        if (userConfig == undefined) {
+            userConfig = {};
         }
+        
+        this.config.width               = (userConfig.width != undefined                ? userConfig.width              : view.viewSize.width);
+        this.config.height              = (userConfig.height != undefined               ? userConfig.height             : view.viewSize.height);
+        this.config.perlinWidth         = (userConfig.perlinWidth != undefined          ? userConfig.perlinWidth        : (this.config.width / 3));
+        this.config.perlinHeight        = (userConfig.perlinHeight != undefined         ? userConfig.perlinHeight       : (this.config.height / 3));
+        this.config.allowDebug          = (userConfig.allowDebug != undefined           ? userConfig.allowDebug         : false);
+        this.config.nbSites             = (userConfig.nbSites != undefined              ? userConfig.nbSites            : ((this.config.width * this.config.height) / 100));
+        this.config.sitesDistribution   = (userConfig.sitesDistribution != undefined    ? userConfig.sitesDistribution  : 'hexagon');
+        this.config.sitesRandomisation  = (userConfig.sitesRandomisation != undefined   ? userConfig.sitesRandomisation : 80);
+        this.config.nbGraphRelaxation   = (userConfig.nbGraphRelaxation != undefined    ? userConfig.nbGraphRelaxation  : 0);
+        this.config.cliffsThreshold     = (userConfig.cliffsThreshold != undefined      ? userConfig.cliffsThreshold    : 0.15);
+        this.config.lakesThreshold      = (userConfig.lakesThreshold != undefined       ? userConfig.lakesThreshold     : 0.005);
+        this.config.nbRivers            = (userConfig.nbRivers != undefined             ? userConfig.nbRivers           : (this.config.nbSites / 200));
+        this.config.maxRiversSize       = (userConfig.maxRiversSize != undefined        ? userConfig.maxRiversSize      : 4);
+        this.config.shading             = (userConfig.shading != undefined              ? userConfig.shading            : 0.35);
+        this.config.shadeOcean          = (userConfig.shadeOcean != undefined           ? userConfig.shadeOcean         : true);
         
         this.cellsLayer = new paper.Layer({name: 'cell'});
         this.riversLayer = new paper.Layer({name: 'rivers'});
@@ -460,11 +460,11 @@ var Island = {
     getElevation: function (point) {
         var x = 2 * (point.x / this.config.width - 0.5);
         var y = 2 * (point.y / this.config.height - 0.5);
-        var length = Math.sqrt(x * x + y * y);
+        var distance = Math.sqrt(x * x + y * y);
         var c = this.getPerlinValue(point); 
 
-        return c - (length * length);
-        //return c - (0.3 + 0.3 * length * length);
+        return c - distance;
+        //return c - (0.3 + 0.3 * distance * distance);
     },
     
     getPerlinValue: function(point) {
