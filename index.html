@@ -1,40 +1,84 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
+
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>island.js by lebesnec</title>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="island.js : Island map generator in JavaScript" />
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>island.js</title>
   </head>
+
   <body>
-    <div class="wrapper">
-      <header>
-        <h1>island.js</h1>
-        <p>Island map generator in JavaScript</p>
 
-        <p class="view"><a href="https://github.com/lebesnec/island.js">View the Project on GitHub <small>lebesnec/island.js</small></a></p>
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/lebesnec/island.js">View on GitHub</a>
 
+          <h1 id="project_title">island.js</h1>
+          <h2 id="project_tagline">Island map generator in JavaScript</h2>
 
-        <ul>
-          <li><a href="https://github.com/lebesnec/island.js/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/lebesnec/island.js/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/lebesnec/island.js">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/lebesnec/island.js/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/lebesnec/island.js/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
         <h1>
 <a name="islandjs" class="anchor" href="#islandjs"><span class="octicon octicon-link"></span></a>island.js</h1>
 
-<p>Island map generator in JavaScript
-<a href="http://lebesnec.github.io/island.js">http://lebesnec.github.io/island.js</a></p>
+<p>Island map generator in JavaScript, using a Voronoi graph and perlin noise <a href="http://lebesnec.github.io/island.js">http://lebesnec.github.io/island.js</a></p>
 
-<p>Inspired by <a href="http://www-cs-students.stanford.edu/%7Eamitp/game-programming/polygon-map-generation/">http://www-cs-students.stanford.edu/~amitp/game-programming/polygon-map-generation/</a></p>
+<ul>
+<li>Inspired by <a href="http://www-cs-students.stanford.edu/%7Eamitp/game-programming/polygon-map-generation/">http://www-cs-students.stanford.edu/~amitp/game-programming/polygon-map-generation/</a>
+</li>
+<li>Use paper.js for rendering : <a href="http://paperjs.org/">http://paperjs.org/</a>
+</li>
+<li>Use Raymond Hill Voronoi implementation : <a href="https://github.com/gorhill/Javascript-Voronoi">https://github.com/gorhill/Javascript-Voronoi</a>
+</li>
+<li>Use Sean McCullough perlin noise generator : <a href="https://gist.github.com/banksean/304522#file-perlin-noise-simplex-js">https://gist.github.com/banksean/304522#file-perlin-noise-simplex-js</a>
+</li>
+</ul><h3>
+<a name="usage-" class="anchor" href="#usage-"><span class="octicon octicon-link"></span></a>Usage :</h3>
+
+<pre><code>&lt;canvas id="island" resize="true"/&gt;&lt;/canvas&gt;
+&lt;canvas id="perlin" hidden="true"&gt;&lt;/canvas&gt;
+&lt;script type="application/javascript"&gt;
+    paper.install(window);
+    window.onload = function(e) {
+        paper.setup('island');
+        Island.init();
+    };
+&lt;/script&gt;
+</code></pre>
+
+<p>You can also set the following optionals parameters :</p>
+
+<pre><code>Island.init({
+    width: 500,
+    height: 500,
+    perlinWidth: 256,
+    perlinHeight: 256,
+    allowDebug: false, // if set to true, you can click on the map to enter "debug" mode. Warning : debug mode is slow to initialize, set to false for faster rendering.
+    nbSites: 10000, // numbers of voronoi cell
+    sitesDistribution: 'hexagon', // distribution of the site of the voronoi graph : random, square or hexagon
+    sitesRandomisation: 80, // will move each site in a random way (in %), for the square or hexagon distribution to look more random
+    nbGraphRelaxation: 0, // nb of time we apply the relaxation algo to the voronoi graph (slow !), for the random distribution to look less random
+    cliffsThreshold: 0.15,
+    lakesThreshold: 0.005, // lake elevation will increase by this value (* the river size) when a new river end inside
+    nbRivers: (10000 / 200),
+    maxRiversSize: 4,
+    shading: 0.35,
+    shadeOcean: true
+});
+</code></pre>
 
 <p>Rendering with 50000 polygons and 250 rivers :
 <img src="https://lh6.googleusercontent.com/-yCoR7YwRDl8/U0z-YgMLlPI/AAAAAAAAeHE/B3ifCidHoFs/s800/Sans%2520titre2.jpg" alt="example of generated island"><img src="https://lh5.googleusercontent.com/-CuDWhc6AdZU/U0z-YpcKYNI/AAAAAAAAeHA/d5MhfItKg8g/s800/Sans%2520titre3.jpg" alt="example of generated island"></p>
@@ -45,12 +89,17 @@
 <p>Rendering using a "square" graph :
 <img src="https://lh3.googleusercontent.com/-7--_ofrPmOQ/U0z-YmFkbRI/AAAAAAAAeHI/ihuAj9lpy5w/s800/Sans%2520titre.jpg" alt="example of generated island"></p>
       </section>
-      <footer>
-        <p>This project is maintained by <a href="https://github.com/lebesnec">lebesnec</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">island.js maintained by <a href="https://github.com/lebesnec">lebesnec</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
       </footer>
     </div>
-    <script src="javascripts/scale.fix.js"></script>
+
     
+
   </body>
 </html>
