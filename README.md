@@ -1,13 +1,14 @@
 island.js
 =========
 
-Island map generator in JavaScript http://lebesnec.github.io/island.js
+Island map generator in JavaScript, using a Voronoi graph and perlin noise http://lebesnec.github.io/island.js
 
-Inspired by http://www-cs-students.stanford.edu/~amitp/game-programming/polygon-map-generation/
-Use paper.js for rendering : http://paperjs.org/
-Use Raymond Hill Voronoi implementation : https://github.com/gorhill/Javascript-Voronoi
+- Inspired by http://www-cs-students.stanford.edu/~amitp/game-programming/polygon-map-generation/
+- Use paper.js for rendering : http://paperjs.org/
+- Use Raymond Hill Voronoi implementation : https://github.com/gorhill/Javascript-Voronoi
+- Use Sean McCullough perlin noise generator : https://gist.github.com/banksean/304522#file-perlin-noise-simplex-js
 
-Usage :
+### Usage :
 
     <canvas id="island" resize="true"/></canvas>
     <canvas id="perlin" hidden="true"></canvas>
