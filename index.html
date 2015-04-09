@@ -7,6 +7,14 @@
     <meta name="description" content="island.js : Island map generator in JavaScript" />
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+	
+	<link href="https://raw.githubusercontent.com/lebesnec/island.js/master/css/map.css" rel="stylesheet">
+
+    <script type="text/javascript" src="https://raw.githubusercontent.com/lebesnec/island.js/master/js/rhill-voronoi-core.min.js"></script>
+    <script type="text/javascript" src="https://raw.githubusercontent.com/lebesnec/island.js/master/js/paper.js"></script>
+    <script type="text/javascript" src="https://raw.githubusercontent.com/lebesnec/island.js/master/js/Simplex.js"></script>
+    <script type="text/javascript" src="https://raw.githubusercontent.com/lebesnec/island.js/master/js/perlin.js"></script>
+    <script type="text/javascript" src="https://raw.githubusercontent.com/lebesnec/island.js/master/js/Island.js"></script>
 
     <title>island.js</title>
   </head>
@@ -45,8 +53,24 @@
 </li>
 <li>Use Sean McCullough perlin noise generator : <a href="https://gist.github.com/banksean/304522#file-perlin-noise-simplex-js">https://gist.github.com/banksean/304522#file-perlin-noise-simplex-js</a>
 </li>
-</ul><h3>
-<a name="usage-" class="anchor" href="#usage-"><span class="octicon octicon-link"></span></a>Usage :</h3>
+</ul>
+
+<h3><a name="usage-" class="anchor" href="#usage-"><span class="octicon octicon-link"></span></a>Demo :</h3>
+<p>Hit F5 to generate a new island :</p>
+<canvas id="island" resize="true"/></canvas>
+<canvas id="perlin" hidden="true"></canvas>
+<script type="application/javascript">
+    paper.install(window);
+    window.onload = function(e) {
+        paper.setup('island');
+        Island.init({
+			width: 500,
+			height: 500
+		});
+    };
+</script>
+
+<h3><a name="usage-" class="anchor" href="#usage-"><span class="octicon octicon-link"></span></a>Usage :</h3>
 
 <pre><code>&lt;canvas id="island" resize="true"/&gt;&lt;/canvas&gt;
 &lt;canvas id="perlin" hidden="true"&gt;&lt;/canvas&gt;
