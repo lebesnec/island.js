@@ -40,6 +40,9 @@ You can also set the following optionals parameters :
         shadeOcean: true
     });
 
+### Demo :
+Here :http://lebesnec.github.io/island.js/
+
 Rendering with 50000 polygons and 250 rivers :
 ![example of generated island](https://lh6.googleusercontent.com/-yCoR7YwRDl8/U0z-YgMLlPI/AAAAAAAAeHE/B3ifCidHoFs/s800/Sans%2520titre2.jpg)
 ![example of generated island](https://lh5.googleusercontent.com/-CuDWhc6AdZU/U0z-YpcKYNI/AAAAAAAAeHA/d5MhfItKg8g/s800/Sans%2520titre3.jpg)
