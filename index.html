@@ -8,13 +8,13 @@
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 	
-	<link href="https://raw.githubusercontent.com/lebesnec/island.js/master/css/map.css" rel="stylesheet">
+	<link href="stylesheets/map.css" rel="stylesheet">
 
-    <script type="text/javascript" src="https://raw.githubusercontent.com/lebesnec/island.js/master/js/rhill-voronoi-core.min.js"></script>
-    <script type="text/javascript" src="https://raw.githubusercontent.com/lebesnec/island.js/master/js/paper.js"></script>
-    <script type="text/javascript" src="https://raw.githubusercontent.com/lebesnec/island.js/master/js/Simplex.js"></script>
-    <script type="text/javascript" src="https://raw.githubusercontent.com/lebesnec/island.js/master/js/perlin.js"></script>
-    <script type="text/javascript" src="https://raw.githubusercontent.com/lebesnec/island.js/master/js/Island.js"></script>
+    <script type="text/javascript" src="javascripts/rhill-voronoi-core.min.js"></script>
+    <script type="text/javascript" src="javascripts/paper.js"></script>
+    <script type="text/javascript" src="javascripts/Simplex.js"></script>
+    <script type="text/javascript" src="javascripts/perlin.js"></script>
+    <script type="text/javascript" src="javascripts/Island.js"></script>
 
     <title>island.js</title>
   </head>
@@ -64,8 +64,9 @@
     window.onload = function(e) {
         paper.setup('island');
         Island.init({
-			width: 500,
-			height: 500
+			width: 700,
+			height: 500,
+			nbSites : 10000
 		});
     };
 </script>
